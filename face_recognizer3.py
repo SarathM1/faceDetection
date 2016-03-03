@@ -37,6 +37,8 @@ recognizer.train(images, np.array(labels))
 cap = cv2.VideoCapture(0)
 while True:
     ret,img = cap.read()
+    if not ret:
+        continue
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     faces = faceCascade.detectMultiScale(gray,minSize=(200,200))
 
