@@ -1,37 +1,7 @@
 #!/usr/bin/env python
-# Software License Agreement (BSD License)
-#
-# Copyright (c) 2012, Philipp Wagner
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-#
-#  * Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-#  * Redistributions in binary form must reproduce the above
-#    copyright notice, this list of conditions and the following
-#    disclaimer in the documentation and/or other materials provided
-#    with the distribution.
-#  * Neither the name of the author nor the names of its
-#    contributors may be used to endorse or promote products derived
-#    from this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
 
-import sys, math, Image
+import sys, math, Image, os
+import csv
 
 def Distance(p1,p2):
   dx = p2[0] - p1[0]
@@ -82,8 +52,21 @@ def CropFace(image, eye_left=(0,0), eye_right=(0,0), offset_pct=(0.2,0.2), dest_
   return image
 
 if __name__ == "__main__":
-  image =  Image.open("s44_10a.jpg")
-  CropFace(image, eye_left=(310,180), eye_right=(475,185), offset_pct=(0.3,0.3), dest_sz=(200,200)).save("s44_10.jpg")
-  #CropFace(image, eye_left=(310,180), eye_right=(475,185), offset_pct=(0.1,0.1), dest_sz=(200,200)).save("s44_1.jpg")
-  #CropFace(image, eye_left=(310,180), eye_right=(475,185), offset_pct=(0.2,0.2), dest_sz=(200,200)).save("s44_2.jpg")
-  #CropFace(image, eye_left=(310,180), eye_right=(475,185), offset_pct=(0.2,0.2)).save("s44_1.jpg")
+  path = './Faces3/'
+  new_path = './Faces2/'
+
+  with open('rotate.csv', 'rb') as csvfile:
+    data = csv.reader(csvfile, delimiter=',')
+    dict1 = {rows[0]:[int(rows[1]),int(rows[2]),int(rows[3]),int(rows[4])] for rows in data}
+  
+  image_paths = [os.path.join(path, f) for f in os.listdir(path)]
+  for image_path in image_paths:
+    image =  Image.open(image_path)
+    fileName = image_path.split('/')[2]
+    fileName = fileName.split('.')[0]
+    res = CropFace(image, eye_left=(dict1[fileName][0],dict1[fileName][1]), eye_right=(dict1[fileName][2],dict1[fileName][3]), offset_pct=(0.4,0.4), dest_sz=(640,480))
+    res.save(new_path+fileName+'.jpg')
+
+    #CropFace(image, eye_left=(dict1[fileName][0],dict1[fileName][1]), eye_right=(dict1[fileName][2],dict1[fileName][3]), offset_pct=(0.1,0.1), dest_sz=(200,200)).save(new_path+fileName+'.jpg')
+    #CropFace(image, eye_left=(dict1[fileName][0],dict1[fileName][1]), eye_right=(dict1[fileName][2],dict1[fileName][3]), offset_pct=(0.2,0.2), dest_sz=(200,200)).save(new_path+fileName+'.jpg')
+    #CropFace(image, eye_left=(dict1[fileName][0],dict1[fileName][1]), eye_right=(dict1[fileName][2],dict1[fileName][3]), offset_pct=(0.2,0.2)).save(new_path+fileName+'.jpg')
