@@ -26,15 +26,14 @@ def get_images_and_labels(path):
             images.append(image[y: y + h, x: x + w])
             labels.append(nbr)
             #print nbr
-    cv2.destroyAllWindows()
     return images, labels
 
 path = './Faces2'
 images, labels = get_images_and_labels(path)
-cv2.destroyAllWindows()
 
 recognizer.train(images, np.array(labels))
 
+path = './Faces3'
 image_paths = [os.path.join(path, f) for f in os.listdir(path)]
 for image_path in image_paths:
     img = cv2.imread(image_path)
