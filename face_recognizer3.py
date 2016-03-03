@@ -15,8 +15,7 @@ def get_images_and_labels(path):
     images = []
     labels = []
     for image_path in image_paths:
-    	print image_path
-        img = cv2.imread(image_path)
+    	img = cv2.imread(image_path)
         image_pil = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
         image = np.array(image_pil, 'uint8')
         
@@ -25,11 +24,11 @@ def get_images_and_labels(path):
         for (x, y, w, h) in faces:
             images.append(image[y: y + h, x: x + w])
             labels.append(nbr)
-            #print nbr
+            print nbr
     cv2.destroyAllWindows()
     return images, labels
 
-path = './Faces'
+path = './Faces2'
 images, labels = get_images_and_labels(path)
 cv2.destroyAllWindows()
 
@@ -39,30 +38,30 @@ cap = cv2.VideoCapture(0)
 while True:
     ret,img = cap.read()
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    #gray = np.array(gray, 'uint8')
-    faces = faceCascade.detectMultiScale(gray)
+    faces = faceCascade.detectMultiScale(gray,minSize=(200,200))
+
     for (x, y, w, h) in faces:
         nbr_predicted, conf = recognizer.predict(gray[y: y + h, x: x + w])
-        box_text = "img = {},conf = {}".format(nbr_predicted, round(conf,3))
-        cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
         
-        if conf<40:
-        	color = (0,255,0)
-    	else:
-    		color = (0,0,255)
+        if conf<35:
+            color = (0,255,0)
+        else:
+            color = (0,0,255)
 
-        cv2.putText(img, box_text, (x-20,y-20), cv2.FONT_HERSHEY_PLAIN, 1.0, color, 2)
-
+        
         if nbr_predicted==44:
-        	cv2.putText(img, "SARATH", (x-30,y-30), cv2.FONT_HERSHEY_PLAIN, 1.0, color, 2)	
-    	elif nbr_predicted==45:
-        	cv2.putText(img, "FEXEN", (x-30,y-30), cv2.FONT_HERSHEY_PLAIN, 1.0, color, 2)	
+            rec_face = "SARATH" 
+        elif nbr_predicted==45:
+            rec_face = "FEXEN"  
         elif nbr_predicted==46:
-        	cv2.putText(img, "AKHIL", (x-30,y-30), cv2.FONT_HERSHEY_PLAIN, 1.0, color, 2)
+            rec_face = "AKHIL"
 
-
-        cv2.imshow("Recognizing Face", img)
-        key = cv2.waitKey(20) & 0xff
-        if key == ord('q'):
-            cv2.destroyAllWindows()
-            sys.exit()
+        box_text = "{},conf = {}".format(rec_face, round(conf,3))
+        cv2.putText(img, box_text, (x-20,y-20), cv2.FONT_HERSHEY_PLAIN, 1.0, color, 2)
+        cv2.rectangle(img, (x, y), (x+w, y+h), color, 2)
+        
+    cv2.imshow("Recognizing Face", img)
+    key = cv2.waitKey(20) & 0xff
+    if key == ord('q'):
+        cv2.destroyAllWindows()
+        sys.exit()
